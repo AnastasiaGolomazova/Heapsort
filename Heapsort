@@ -1,0 +1,104 @@
+#include <iostream>
+#include <algorithm>
+#include <time.h>
+
+using namespace std;
+
+int* CreateArray(int size, int minRange, int maxRange) {
+	if (size <= 0) { // проработка исключений, если размер <= 0
+		throw 0;
+
+	}
+
+	int* Array = new int[size]; // создали массив размером size
+	for (int i = 0; i < size; i++) {
+		Array[i] = minRange + rand() % (maxRange - minRange); // заполнили массив нужным нам диапозоном
+	}
+	return Array;
+}
+
+void PrintArray(int* Array, int size) { // функция вывода
+	int i;
+	for (i = 0; i < size - 1; ++i)
+		cout << Array[i] << " ";
+	cout << Array[i] << endl;
+}
+
+void Sift2(int* a, int n, int i) {
+	/* Просеивание i-го элемента массива a через подчиненную ему пирамиду.
+	n – размер массива. */
+	int j = 2 * i + 1, x = a[i];
+	while (j < n) {
+		if (j + 1 < n && a[j + 1] > a[j])
+			++j;
+		if (a[j] > x) {
+			swap(a[i], a[j]);
+			i = j;
+			j = 2 * i + 1;
+		}
+		else
+			break;
+	}
+	a[i] = x;
+}
+
+void Heapsort(int* a, int n) {
+	// 1. Построить пирамиду из элементов a0, a1, ..., an - 1.
+	for (int i = n / 2 - 1; i >= 0; --i)
+		Sift2(a, n, i);
+	for (int i = n - 1; i >= 1; --i) {
+		swap(a[0], a[i]);
+		Sift2(a, i, 0);
+	}
+}
+
+bool CheckArray(int *Array, int size) { // функция проверки, отсортирован ли массив
+	bool ok = true;
+	if (Array != NULL) {
+
+		for (int i = 0; i < size - 1; ++i)
+			if (Array[i] > Array[i + 1])
+				return false;
+
+		return true;
+	}
+
+}
+
+int main() {
+	setlocale(LC_ALL, "Russian");
+	srand(time(NULL));
+	int size;// размер массива
+	int *Array = NULL;
+	cout << "size = ";
+
+	try
+	{
+		cin >> size;
+		Array = CreateArray(size, 0, 1000);
+		PrintArray(Array, size);
+		int k = 0;
+		for (int i = 0; i < size; ++i)
+			k = max(k, (int)log2(Array[i]));
+		Heapsort(Array, size);
+		PrintArray(Array, size);
+
+		if (!CheckArray(Array, size))
+			cout << "Массив не отсортирован" << endl;
+		else
+			cout << "Массив отсортирован" << endl;
+
+	}
+	catch (int i)
+	{
+		switch (i)
+		{
+		case 0:
+			cout << "Размер недопустимых значений" << endl;
+		}
+	}
+
+	delete Array;
+	system("pause");
+	return 0;
+}
